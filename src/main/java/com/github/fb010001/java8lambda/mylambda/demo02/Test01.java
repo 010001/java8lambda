@@ -193,7 +193,7 @@ public class Test01 {
 
     }
 
-    public enum DishLevel {MIDDLE,NIRMAL,HIGH}
+    public enum DishLevel {LOW,MIDDLE,HIGH}
 
     @Test
     public void test13(){
@@ -210,9 +210,9 @@ public class Test01 {
         //System.out.println(collect);
         Map<DishLevel, List<Dish>> collect1 = dishs.stream().collect(Collectors.groupingBy(dish -> {
             if (dish.getHeat() < 200) {
-                return DishLevel.MIDDLE;
+                return DishLevel.LOW;
             } else if (dish.getHeat() < 500) {
-                return DishLevel.NIRMAL;
+                return DishLevel.MIDDLE;
             } else {
                 return DishLevel.HIGH;
             }
@@ -252,9 +252,9 @@ public class Test01 {
         //System.out.println(collect);
         Map<Boolean, Map<DishLevel, List<Dish>>> collect1 = dishs.stream().collect(Collectors.groupingBy(Dish::isVegetarian, Collectors.groupingBy(dish -> {
             if (dish.getHeat() < 200) {
-                return DishLevel.MIDDLE;
+                return DishLevel.LOW;
             } else if (dish.getHeat() < 500) {
-                return DishLevel.NIRMAL;
+                return DishLevel.MIDDLE;
             } else {
                 return DishLevel.HIGH;
             }
@@ -299,7 +299,10 @@ public class Test01 {
         //Map<Boolean, List<Dish>> collect = dishs.stream().collect(Collectors.groupingBy(Dish::isVegetarian));
 
         //System.out.println(dishs.stream().collect(Collectors.groupingBy(Dish::isVegetarian,Collectors.maxBy(Comparator.comparingInt(Dish::getHeat)))));
+        System.out.println("分组中热量最高的菜品");
         System.out.println(dishs.stream().collect(Collectors.groupingBy(Dish::isVegetarian,Collectors.maxBy(Comparator.comparing(Dish::getHeat)))));
+
+
         System.out.println(dishs.stream().collect(Collectors.groupingBy(Dish::isVegetarian,Collectors.counting())));
 
         //比较菜品热量
@@ -309,6 +312,93 @@ public class Test01 {
 
         dishs.stream().sorted(Comparator.comparing(Dish::getHeat)).collect(Collectors.toList()).forEach(System.out::println);
 
+        System.out.println("===============");
+        /**
+         * {
+         * 	false=[
+         * 		Dish(name=菜花, heat=170, isVegetarian=false),
+         * 		Dish(name=鱼肉水饺, heat=280, isVegetarian=false),
+         * 		Dish(name=肘子, heat=510, isVegetarian=false),
+         * 		Dish(name=肘子1, heat=530, isVegetarian=false),
+         * 		Dish(name=肘子2, heat=550, isVegetarian=false)],
+         * 	true=[
+         * 		Dish(name=韭菜, heat=58, isVegetarian=true)]
+         * }
+         * 分组并排序
+         */
+        Map<Boolean, List<Dish>> collect = dishs.stream().sorted(Comparator.comparing(Dish::getHeat)).collect(Collectors.groupingBy(Dish::isVegetarian));
+        System.out.println(collect);
+
+        System.out.println("降序排序");
+        List<Dish> collect1 = dishs.stream().sorted((d1, d2) -> d1.getHeat()>d2.getHeat()?-1:(d1.getHeat()==d2.getHeat()?0:1)).collect(Collectors.toList());
+        System.out.println(collect1);
+        System.out.println("降序分组");
+        System.out.println(dishs.stream().sorted((d1, d2) -> d1.getHeat()>d2.getHeat()?-1:(d1.getHeat()==d2.getHeat()?0:1)).collect(Collectors.groupingBy(Dish::isVegetarian)));
+        //System.out.println(collect);
+        System.out.println("升序排序");
+        List<Dish> collect2 = dishs.stream().sorted((d1, d2) -> d1.getHeat()<d2.getHeat()?-1:(d1.getHeat()==d2.getHeat()?0:1)).collect(Collectors.toList());
+        System.out.println(collect2);
+        System.out.println("升序分组");
+        System.out.println(dishs.stream().sorted((d1, d2) -> d1.getHeat()<d2.getHeat()?-1:(d1.getHeat()==d2.getHeat()?0:1)).collect(Collectors.groupingBy(Dish::isVegetarian)));
+    }
+
+    @Test
+    public void test17() {
+        //分组并按照热量从大到小排序区最大值
+        Dish dish01 = new Dish("肘子", 510, false);
+        Dish dish011 = new Dish("肘子1", 530, false);
+        Dish dish012 = new Dish("肘子2", 550, false);
+        Dish dish02 = new Dish("菜花", 170, false);
+        Dish dish03 = new Dish("韭菜", 58, true);
+        Dish dish04 = new Dish("鱼肉水饺", 280, false);
+
+        List<Dish> dishs = Arrays.asList(dish01, dish02, dish03, dish04, dish011, dish012);
+
+        /**
+         * 获取分组的菜品中有那些热量品级的菜品
+         */
+        Map<Boolean, Set<DishLevel>> collect = dishs.stream().collect(Collectors.groupingBy(Dish::isVegetarian, Collectors.mapping(d -> {
+            if (d.getHeat() < 200) {
+                return DishLevel.LOW;
+            } else if (d.getHeat() < 500) {
+                return DishLevel.MIDDLE;
+            } else {
+                return DishLevel.HIGH;
+            }
+        }, Collectors.toSet())));
+
+        System.out.println(collect);
+    }
+
+
+    @Test
+    public void test18() {
+        //分区
+        Dish dish01 = new Dish("肘子", 510, false);
+        Dish dish011 = new Dish("肘子1", 530, false);
+        Dish dish012 = new Dish("肘子2", 550, false);
+        Dish dish02 = new Dish("菜花", 170, false);
+        Dish dish03 = new Dish("韭菜", 58, true);
+        Dish dish04 = new Dish("鱼肉水饺", 280, false);
+
+        List<Dish> dishs = Arrays.asList(dish01, dish02, dish03, dish04, dish011, dish012);
+
+        Map<Boolean, List<Dish>> collect = dishs.stream().collect(Collectors.partitioningBy(Dish::isVegetarian));
+        /**
+         * {
+         * 	false=[
+         * 		Dish(name=肘子, heat=510, isVegetarian=false),
+         * 		Dish(name=菜花, heat=170, isVegetarian=false),
+         * 		Dish(name=鱼肉水饺, heat=280, isVegetarian=false),
+         * 		Dish(name=肘子1, heat=530, isVegetarian=false),
+         * 		Dish(name=肘子2, heat=550, isVegetarian=false)],
+         * 	true=[
+         * 		Dish(name=韭菜, heat=58, isVegetarian=true)]
+         * }
+         */
+        System.out.println(collect);
+        System.out.println(collect.get(true));
+        System.out.println(collect.get(false));
     }
 
 }
