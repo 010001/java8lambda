@@ -399,6 +399,33 @@ public class Test01 {
         System.out.println(collect);
         System.out.println(collect.get(true));
         System.out.println(collect.get(false));
+
+
+        //dishs.stream().collect(Collectors.partitioningBy(Dish::isVegetarian,Collectors.maxBy(Dish::getHeat)),Optional::get);
+
+
+        Map<Boolean, Optional<Dish>> collect1 = dishs.stream().collect(Collectors.partitioningBy(Dish::isVegetarian, Collectors.maxBy(Comparator.comparing(Dish::getHeat))));
+        System.out.println();
+        System.out.println(collect1);
+
+        Map<Boolean, Optional<Dish>> collect222 = dishs.stream().collect(Collectors.partitioningBy(Dish::isVegetarian, Collectors.maxBy(Comparator.comparing(Dish::getHeat))));
+
+
+        System.out.println("=============");
+        Map<Boolean, Dish> collect3 = dishs.stream().collect(
+                Collectors.partitioningBy(
+                        Dish::isVegetarian,
+                        Collectors.collectingAndThen(
+                                Collectors.maxBy(Comparator.comparingInt(Dish::getHeat)),
+                                Optional::get
+                        )
+                )
+        );
+        System.out.println(collect3);
+        System.out.println(collect3.get(true).getName());
+
+
+        //dishs.stream().collect(Collectors.partitioningBy(Dish::isVegetarian,Collectors.collectingAndThen(Comparator.comparing(Dish::getHeat),Optional::get)));
     }
 
 }
