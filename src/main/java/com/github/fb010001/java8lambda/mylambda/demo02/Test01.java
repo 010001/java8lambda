@@ -193,13 +193,11 @@ public class Test01 {
 
     }
 
+    public enum DishLevel {MIDDLE,NIRMAL,HIGH}
+
     @Test
     public void test13(){
         //分组
-        List<Integer> numbers = Arrays.asList(1,2,1,3,3,2,4);
-        System.out.println(numbers.stream().collect(Collectors.counting()));
-
-
         Dish dish01 = new Dish("肘子",510,false);
         Dish dish011 = new Dish("肘子1",530,false);
         Dish dish012 = new Dish("肘子2",550,false);
@@ -209,7 +207,108 @@ public class Test01 {
 
         List<Dish> dishs = Arrays.asList(dish01,dish02,dish03,dish04,dish011,dish012);
         Map<Boolean, List<Dish>> collect = dishs.stream().collect(Collectors.groupingBy(Dish::isVegetarian));
-        System.out.println(collect);
+        //System.out.println(collect);
+        Map<DishLevel, List<Dish>> collect1 = dishs.stream().collect(Collectors.groupingBy(dish -> {
+            if (dish.getHeat() < 200) {
+                return DishLevel.MIDDLE;
+            } else if (dish.getHeat() < 500) {
+                return DishLevel.NIRMAL;
+            } else {
+                return DishLevel.HIGH;
+            }
+        }));
+        System.out.println(collect1);
+    }
+
+    /**
+     * {
+     * 	false={
+     * 		MIDDLE=[
+     * 			Dish(name=菜花, heat=170, isVegetarian=false)],
+     * 		HIGH=[
+     * 			Dish(name=肘子, heat=510, isVegetarian=false),
+     * 			Dish(name=肘子1, heat=530, isVegetarian=false),
+     * 			Dish(name=肘子2, heat=550, isVegetarian=false)],
+     * 		NIRMAL=[
+     * 			Dish(name=鱼肉水饺, heat=280, isVegetarian=false)]
+     *        },
+     * 	true={
+     * 		MIDDLE=[
+     * 			Dish(name=韭菜, heat=58, isVegetarian=true)]}
+     * }
+     */
+    @Test
+    public void test14(){
+        //多级分组
+        Dish dish01 = new Dish("肘子",510,false);
+        Dish dish011 = new Dish("肘子1",530,false);
+        Dish dish012 = new Dish("肘子2",550,false);
+        Dish dish02 = new Dish("菜花",170,false);
+        Dish dish03 = new Dish("韭菜",58,true);
+        Dish dish04 = new Dish("鱼肉水饺",280,false);
+
+        List<Dish> dishs = Arrays.asList(dish01,dish02,dish03,dish04,dish011,dish012);
+        Map<Boolean, List<Dish>> collect = dishs.stream().collect(Collectors.groupingBy(Dish::isVegetarian));
+        //System.out.println(collect);
+        Map<Boolean, Map<DishLevel, List<Dish>>> collect1 = dishs.stream().collect(Collectors.groupingBy(Dish::isVegetarian, Collectors.groupingBy(dish -> {
+            if (dish.getHeat() < 200) {
+                return DishLevel.MIDDLE;
+            } else if (dish.getHeat() < 500) {
+                return DishLevel.NIRMAL;
+            } else {
+                return DishLevel.HIGH;
+            }
+        })));
+        System.out.println(collect1);
+    }
+
+    @Test
+    public void test15(){
+        //获取分组的每组的数量
+        Dish dish01 = new Dish("肘子",510,false);
+        Dish dish011 = new Dish("肘子1",530,false);
+        Dish dish012 = new Dish("肘子2",550,false);
+        Dish dish02 = new Dish("菜花",170,false);
+        Dish dish03 = new Dish("韭菜",58,true);
+        Dish dish04 = new Dish("鱼肉水饺",280,false);
+
+        List<Dish> dishs = Arrays.asList(dish01,dish02,dish03,dish04,dish011,dish012);
+        Map<Boolean, List<Dish>> collect = dishs.stream().collect(Collectors.groupingBy(Dish::isVegetarian));
+
+        System.out.println(dishs.stream().collect(Collectors.groupingBy(Dish::isVegetarian, Collectors.counting())));
+    }
+
+
+    /**
+     * {
+     * 	false=Optional[Dish(name=肘子2, heat=550, isVegetarian=false)],
+     * 	true=Optional[Dish(name=韭菜, heat=58, isVegetarian=true)]
+     * }
+     */
+    @Test
+    public void test16(){
+        //分组并按照热量从大到小排序区最大值
+        Dish dish01 = new Dish("肘子",510,false);
+        Dish dish011 = new Dish("肘子1",530,false);
+        Dish dish012 = new Dish("肘子2",550,false);
+        Dish dish02 = new Dish("菜花",170,false);
+        Dish dish03 = new Dish("韭菜",58,true);
+        Dish dish04 = new Dish("鱼肉水饺",280,false);
+
+        List<Dish> dishs = Arrays.asList(dish01,dish02,dish03,dish04,dish011,dish012);
+        //Map<Boolean, List<Dish>> collect = dishs.stream().collect(Collectors.groupingBy(Dish::isVegetarian));
+
+        //System.out.println(dishs.stream().collect(Collectors.groupingBy(Dish::isVegetarian,Collectors.maxBy(Comparator.comparingInt(Dish::getHeat)))));
+        System.out.println(dishs.stream().collect(Collectors.groupingBy(Dish::isVegetarian,Collectors.maxBy(Comparator.comparing(Dish::getHeat)))));
+        System.out.println(dishs.stream().collect(Collectors.groupingBy(Dish::isVegetarian,Collectors.counting())));
+
+        //比较菜品热量
+        //Comparator<Dish> dishHeatComparator = Comparator.comparingInt(Dish::getHeat);
+        //System.out.println(dishs.stream().collect(Collectors.groupingBy(Dish::isVegetarian,Collectors.maxBy(dishHeatComparator))));
+
+
+        dishs.stream().sorted(Comparator.comparing(Dish::getHeat)).collect(Collectors.toList()).forEach(System.out::println);
+
     }
 
 }
